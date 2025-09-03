@@ -17,11 +17,9 @@ namespace RyanairTests
             this.wait = wait;
         }
 
-        // Lokatory
         private By AcceptCookiesBtn => By.CssSelector("button[data-ref='cookie.accept-all']");
 
         private By OneWayBtn => By.CssSelector("label[for='ry-radio-button--0']");
-
 
         private By DepartureInput => By.CssSelector("#input-button__departure");
 
@@ -29,10 +27,7 @@ namespace RyanairTests
 
         private By ArrivalInput => By.CssSelector("#input-button__destination");
 
-
         private By DepartureDateInput => By.CssSelector("div[data-ref='input-button__display-value']");
-
-
 
         private By AvailableDates => By.CssSelector("calendar-body .calendar-body__cell[data-type='day'][tabindex='0']");
 
@@ -41,8 +36,6 @@ namespace RyanairTests
         private By AirportSuggestion => By.CssSelector("span[role='option']");
 
 
-
-        // Akcje
         public void AcceptCookiesIfVisible()
         {
             try
@@ -50,7 +43,7 @@ namespace RyanairTests
                 var btn = wait.Until(d => d.FindElement(AcceptCookiesBtn));
                 btn.Click();
             }
-            catch { /* brak cookies bannera - idziemy dalej */ }
+            catch {  }
         }
 
         public void SelectOneWay()
@@ -65,7 +58,6 @@ namespace RyanairTests
             input.Clear();
             input.SendKeys(departure);
 
-            // Klikamy właściwe lotnisko z listy
             SelectAirport(airportName);
         }
 
@@ -107,21 +99,17 @@ namespace RyanairTests
 
         public void SelectFirstAvailableDate()
         {
-            // Kliknij w input daty, żeby otworzyć kalendarz
             var dateInput = wait.Until(d => d.FindElement(DepartureDateInput));
             dateInput.Click();
 
             IWebElement firstAvailable = null;
 
-            // Retry loop, żeby złapać stale element
             for (int i = 0; i < 5; i++)
             {
                 try
                 {
-                    // Pobierz wszystkie komórki w kalendarzu
                     var allCells = wait.Until(d => d.FindElements(By.CssSelector("calendar-body .calendar-body__cell")));
 
-                    // Filtruj tylko te dostępne
                     firstAvailable = allCells
                         .FirstOrDefault(c => !c.GetAttribute("class").Contains("--disabled") && c.Displayed && c.Enabled);
 
@@ -133,15 +121,12 @@ namespace RyanairTests
                 }
                 catch (StaleElementReferenceException)
                 {
-                    Thread.Sleep(200); // krótkie oczekiwanie i retry
+                    Thread.Sleep(200);
                 }
             }
 
-            throw new Exception("Nie znaleziono dostępnej daty w kalendarzu.");
+            throw new Exception("No available date in calendar.");
         }
-
-
-
 
 
         public void Search()
